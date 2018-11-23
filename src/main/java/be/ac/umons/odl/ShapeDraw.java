@@ -3,8 +3,12 @@ package be.ac.umons.odl;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ContainerAdapter;
+import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.concurrent.RecursiveAction;
+
+import static java.lang.Math.abs;
 
 public class ShapeDraw {
 	private JPanel mainPanel;
@@ -23,7 +27,13 @@ public class ShapeDraw {
 
 			@Override
 			public void mousePressed(MouseEvent e) {
-				messageZone.setText("Mouse pressed: (" + e.getX() + ", " + e.getY() + ")");
+				if(e.getButton()== e.BUTTON1)
+					messageZone.setText("Left click\n");
+				else if(e.getButton()==e.BUTTON3)
+					messageZone.setText("Right Click\n");
+				else
+					messageZone.setText("Unknown click\n");
+				messageZone.setText(messageZone.getText()+"Mouse pressed: (" + e.getX() + ", " + e.getY() + ")");
 				start = new Point(e.getX(), e.getY());
 			}
 
@@ -32,9 +42,20 @@ public class ShapeDraw {
 				messageZone.setText(messageZone.getText() + "\nMouse released: (" + e.getX() + ", " + e.getY() + ")");
 				Point end = new Point(e.getX(), e.getY());
 				if (rectBtn.isSelected()) {
-					((DrawingPanel) drawingArea).addDrawable(new Rectangle(start, end));
+					Rectangle tmp =new  Rectangle(start, end);
+					((DrawingPanel) drawingArea).addDrawable(tmp);
+					messageZone.setText(messageZone.getText()+"\nPerimeter : "+tmp.computePerimeter()+"\nArea : "+ tmp.computeArea());
 				} else if (squareBtn.isSelected()) {
-					((DrawingPanel) drawingArea).addDrawable(new Square(start, Math.min(end.getX() - start.getX(), end.getY() - start.getY())));
+					Square tmp = new Square(start, Math.min(end.getX() - start.getX(), end.getY() - start.getY()));
+					((DrawingPanel) drawingArea).addDrawable(tmp);
+					messageZone.setText(messageZone.getText()+"\nPerimeter : "+tmp.computePerimeter()+"\nArea : "+ tmp.computeArea());
+				} else if(ellipsisBtn.isSelected()) {
+					Ellipsis tmp = new Ellipsis(start,abs(end.getX()-start.getX()),abs(end.getY()-start.getY()));
+					((DrawingPanel) drawingArea).addDrawable(tmp);
+					messageZone.setText(messageZone.getText()+"\nPerimeter : "+tmp.computePerimeter()+"\nArea : "+ tmp.computeArea());
+				} else if(circleBtn.isSelected()){
+					Circle tmp= new Circle(start, end.distanceTo(start));
+					((DrawingPanel) drawingArea).addDrawable((tmp));messageZone.setText(messageZone.getText()+"\nPerimeter : "+tmp.computePerimeter()+"\nArea : "+ tmp.computeArea());
 				}
 				drawingArea.repaint();
 			}
